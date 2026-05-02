@@ -1,127 +1,74 @@
 import sqlite3
 
-DB_NAME = "cities.db"
-
+def display_menu():
+    print("\nCity Database Menu")
+    print("1. Display cities sorted by population (ascending)")
+    print("2. Display cities sorted by population (descending)")
+    print("3. Display cities sorted by name")
+    print("4. Display total population")
+    print("5. Display average population")
+    print("6. Display city with highest population")
+    print("7. Display city with lowest population")
+    print("8. Exit")
 
 def main():
-    conn = sqlite3.connect(DB_NAME)
+    # Connect to the existing database
+    conn = sqlite3.connect("cities.db")
     cur = conn.cursor()
 
     while True:
-        choice = menu()
+        display_menu()
+        choice = input("Enter your choice: ")
 
         if choice == "1":
-            display_sorted(cur, "ASC")
+            cur.execute("SELECT CityName, Population FROM Cities ORDER BY Population ASC")
+            rows = cur.fetchall()
+            print("\nCities by Population (Ascending):")
+            for city, pop in rows:
+                print(f"{city}: {pop}")
+
         elif choice == "2":
-            display_sorted(cur, "DESC")
+            cur.execute("SELECT CityName, Population FROM Cities ORDER BY Population DESC")
+            rows = cur.fetchall()
+            print("\nCities by Population (Descending):")
+            for city, pop in rows:
+                print(f"{city}: {pop}")
+
         elif choice == "3":
-            display_sorted_by_name(cur)
+            cur.execute("SELECT CityName, Population FROM Cities ORDER BY CityName ASC")
+            rows = cur.fetchall()
+            print("\nCities Sorted by Name:")
+            for city, pop in rows:
+                print(f"{city}: {pop}")
+
         elif choice == "4":
-            total_population(cur)
+            cur.execute("SELECT SUM(Population) FROM Cities")
+            total = cur.fetchone()[0]
+            print(f"\nTotal Population: {total}")
+
         elif choice == "5":
-            average_population(cur)
+            cur.execute("SELECT AVG(Population) FROM Cities")
+            avg = cur.fetchone()[0]
+            print(f"\nAverage Population: {avg}")
+
         elif choice == "6":
-            highest_population(cur)
+            cur.execute("SELECT CityName, Population FROM Cities ORDER BY Population DESC LIMIT 1")
+            city, pop = cur.fetchone()
+            print(f"\nCity with Highest Population: {city} ({pop})")
+
         elif choice == "7":
-            lowest_population(cur)
+            cur.execute("SELECT CityName, Population FROM Cities ORDER BY Population ASC LIMIT 1")
+            city, pop = cur.fetchone()
+            print(f"\nCity with Lowest Population: {city} ({pop})")
+
         elif choice == "8":
-            print("Exiting program...")
+            print("Goodbye.")
             break
+
         else:
             print("Invalid choice. Try again.")
 
     conn.close()
 
-
-# ---------------- MAIN MENU ----------------
-def menu():
-    print("\n--- City Database Menu ---")
-    print("1. Display cities (population ascending)")
-    print("2. Display cities (population descending)")
-    print("3. Display cities (alphabetical)")
-    print("4. Total population")
-    print("5. Average population")
-    print("6. Highest population city")
-    print("7. Lowest population city")
-    print("8. Exit")
-
-    return input("Enter choice: ")
-
-
-# ---------------- DISPLAY ----------------
-def display_sorted(cur, order):
-    direction = "ASC" if order == "ASC" else "DESC"
-
-    cur.execute(f"SELECT * FROM Cities ORDER BY Population {direction}")
-    rows = cur.fetchall()
-
-    if not rows:
-        print("\nNo cities found. Make sure the database is populated.")
-        return
-
-    print(f"\nCities sorted by population ({direction}):")
-    print(f"{'ID':<5}{'City':20}{'Population'}")
-
-    for r in rows:
-        print(f"{r[0]:<5}{r[1]:20}{r[2]:,}")
-
-
-def display_sorted_by_name(cur):
-    cur.execute("SELECT * FROM Cities ORDER BY CityName ASC")
-    rows = cur.fetchall()
-
-    if not rows:
-        print("\nNo cities found.")
-        return
-
-    print("\nCities sorted alphabetically:")
-    print(f"{'ID':<5}{'City':20}{'Population'}")
-
-    for r in rows:
-        print(f"{r[0]:<5}{r[1]:20}{r[2]:,}")
-
-
-# ---------------- STATS ----------------
-def total_population(cur):
-    cur.execute("SELECT SUM(Population) FROM Cities")
-    total = cur.fetchone()[0]
-
-    if total is None:
-        print("\nNo data available.")
-    else:
-        print(f"\nTotal population: {total:,}")
-
-
-def average_population(cur):
-    cur.execute("SELECT AVG(Population) FROM Cities")
-    avg = cur.fetchone()[0]
-
-    if avg is None:
-        print("\nNo data available.")
-    else:
-        print(f"\nAverage population: {avg:,.2f}")
-
-
-def highest_population(cur):
-    cur.execute("SELECT CityName, Population FROM Cities ORDER BY Population DESC LIMIT 1")
-    row = cur.fetchone()
-
-    if row:
-        print(f"\nHighest population: {row[0]} ({row[1]:,})")
-    else:
-        print("\nNo data available.")
-
-
-def lowest_population(cur):
-    cur.execute("SELECT CityName, Population FROM Cities ORDER BY Population ASC LIMIT 1")
-    row = cur.fetchone()
-
-    if row:
-        print(f"\nLowest population: {row[0]} ({row[1]:,})")
-    else:
-        print("\nNo data available.")
-
-
-# ---------------- RUN ----------------
 if __name__ == "__main__":
     main()
