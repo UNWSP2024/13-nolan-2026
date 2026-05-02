@@ -1,5 +1,7 @@
 import sqlite3
 
+# MAIN MENU
+
 def display_menu():
     print("\nCity Database Menu")
     print("1. Display cities sorted by population (ascending)")
