@@ -1,3 +1,7 @@
+# By Nolan Nelsen
+# Written on 5/1/2026
+# Program #2: City Database
+
 import sqlite3
 
 # MAIN MENU
